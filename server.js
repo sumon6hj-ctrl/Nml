@@ -5,7 +5,9 @@ const path = require("path");
 const app = express();
 
 app.use(express.json());
-app.use(express.static("public"));
+
+// ✅ FIX: absolute static path (Render safe)
+app.use(express.static(path.join(__dirname, "public")));
 
 app.post("/api/upload", async (req, res) => {
   try {
@@ -23,7 +25,7 @@ app.post("/api/upload", async (req, res) => {
       jwt = d2.jwt;
     }
 
-    // 🔹 UID + PASS (only if valid external API)
+    // 🔹 UID + PASS login
     if (uid && pass) {
       let login = await fetch("https://example.com/login", {
         method: "POST",
@@ -54,11 +56,14 @@ app.post("/api/upload", async (req, res) => {
   }
 });
 
-// Frontend route
+// ✅ FIX: correct frontend route
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/index.html"));
+  res.sendFile(path.join(__dirname, "public/index.html"));
 });
 
-app.listen(process.env.PORT || 3000, () => {
-  console.log("🚀 SUMON 9X RUNNING");
+// ✅ FIX: Render safe PORT
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log("🚀 SUMON 9X RUNNING on port", PORT);
 });
